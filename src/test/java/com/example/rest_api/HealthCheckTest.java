@@ -116,8 +116,12 @@ public class HealthCheckTest {
                 .then()
                 .statusCode(200)
                 .extract().body().as(PlayerDto.class);
+        System.out.println("===============================================");
+        System.out.println("Actual result:");
+        System.out.println(actualPlayer.toString());
 
         Assert.assertEquals(actualPlayer, expectedPlayer);
+
 
     }
 
