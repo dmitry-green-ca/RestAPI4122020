@@ -109,5 +109,47 @@ public class CRUDPlayerControllerTest {
 //    4/17/2020
 //===============================================
 
+    @Test
+    public void getV1PlayerId() {
+        PlayerDto expectedPlayer = new PlayerDto.Builder()
+                .id("5")
+                .fullName("Laurent Koscielny")
+                .position("DF")
+                .teamName("Arsenal")
+                .build();
 
+        PlayerDto actualPlayer = RestAssured.given()
+                //.log().all()
+                .when()
+                .get(PLAYERS_URL + "/5")
+                .then()
+                .statusCode(200)
+                .extract().body().as(PlayerDto.class);
+        System.out.println("===============================================");
+        System.out.println("Actual result:");
+        System.out.println(actualPlayer.toString());
+
+        Assert.assertEquals(actualPlayer, expectedPlayer);
+
+
+    }
+
+    private String expectedResponseNotFound="Player with id: [23] not found";
+
+    @Test
+    public void getV1PlayerIdNotFound() {
+
+        String actualResponseNotFound = RestAssured.given()
+                //.log().all()
+                .when()
+                .get(PLAYERS_URL + "/23")
+                .then()
+                .statusCode(404)
+                .extract().body().jsonPath().getString("message");
+        System.out.println("===============================================");
+        System.out.println("Actual result:");
+        System.out.println(actualResponseNotFound);
+
+        Assert.assertEquals(actualResponseNotFound, expectedResponseNotFound);
+    }
 }
