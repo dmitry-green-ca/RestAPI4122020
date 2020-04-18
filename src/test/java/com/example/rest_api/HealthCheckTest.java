@@ -21,7 +21,9 @@ public class HealthCheckTest {
                 .extract().body().asString();
 
         Assert.assertNotNull(body);
+        System.out.println("NotNull assertion PASSED for PLAYERS_URL");
         Assert.assertTrue(!body.isEmpty());
+        System.out.println("NotEmpty assertion PASSED for PLAYERS_URL");
     }
 
     //1
@@ -36,11 +38,18 @@ public class HealthCheckTest {
                 .extract().body().asString();
 
         Assert.assertNotNull(body);
+        System.out.println("NotNull assertion PASSED for TEAMS_URL");
         Assert.assertTrue(!body.isEmpty());
+        System.out.println("NotEmpty assertion PASSED for TEAMS_URL");
     }
 
     //2
-
+//    {
+//        "id": 3,
+//            "fullName": "Mohamed Elneny",
+//            "position": "MF",
+//            "teamName": "Arsenal"
+//    }
     private String expectedPlayerBody = "{\"id\":3,\"fullName\":\"Mohamed Elneny\",\"position\":\"MF\",\"teamName\":\"Arsenal\"}";
 
     @Test
@@ -54,7 +63,17 @@ public class HealthCheckTest {
                 .extract().body().asString();
 
         Assert.assertEquals(expectedPlayerBody, actualBody);
+        System.out.println("Expected result:");
+        System.out.println("{\n" +
+                "  \"id\": 3,\n" +
+                "  \"fullName\": \"Mohamed Elneny\",\n" +
+                "  \"position\": \"MF\",\n" +
+                "  \"teamName\": \"Arsenal\"\n" +
+                "}");
+        System.out.println("Actual result:");
+        System.out.println(actualBody);
     }
+
 
 
     //3
@@ -73,6 +92,9 @@ public class HealthCheckTest {
                 .extract().body().jsonPath().getString("fullName");
 
         Assert.assertEquals(expectedFullName, actualFullName);
+        System.out.println("===============================================");
+        System.out.println("Actual result:");
+        System.out.println(actualFullName);
     }
 
     //4
