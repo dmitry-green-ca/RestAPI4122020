@@ -1,7 +1,7 @@
 package com.example.rest_api.controller.player;
 
-import com.example.rest_api.config.Urls;
 import com.example.rest_api.controller.player.model.PlayerDto;
+import com.example.rest_api.controller.shared.ErrorMessage;
 import com.example.rest_api.data.TestData;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -111,6 +111,9 @@ public class CRUDPlayerControllerTest {
 
     @Test
     public void getV1PlayerId() {
+        //String id="10000";
+        //+> id, +10
+
         PlayerDto expectedPlayer = new PlayerDto.Builder()
                 .id("5")
                 .fullName("Laurent Koscielny")
@@ -133,23 +136,29 @@ public class CRUDPlayerControllerTest {
 
 
     }
+//===============================================
+//    Mountain View suite
+//    4/18/2020
+//===============================================
 
-    private String expectedResponseNotFound="Player with id: [23] not found";
+    private String expectedResponseNotFoundPattern = "Player with id: [%s] not found";
 
     @Test
     public void getV1PlayerIdNotFound() {
 
-        String actualResponseNotFound = RestAssured.given()
+        String id="23";
+        String expectedErrorMessage = String.format(expectedResponseNotFoundPattern, id);
+
+        ErrorMessage actualErrorMessage = RestAssured.given()
                 //.log().all()
                 .when()
-                .get(PLAYERS_URL + "/23")
+                .get(PLAYERS_URL + "/" + id)
                 .then()
                 .statusCode(404)
-                .extract().body().jsonPath().getString("message");
-        System.out.println("===============================================");
-        System.out.println("Actual result:");
-        System.out.println(actualResponseNotFound);
+                .extract().body().as(ErrorMessage.class);
 
-        Assert.assertEquals(actualResponseNotFound, expectedResponseNotFound);
+        Assert.assertEquals(actualErrorMessage.getMessage(), expectedErrorMessage);
+        Assert.assertNotNull(actualErrorMessage.getTimestamp());
+        Assert.assertTrue(!actualErrorMessage.getTimestamp().isEmpty());
     }
 }
