@@ -6,6 +6,7 @@ import com.example.rest_api.controller.shared.ErrorMessage;
 import com.example.rest_api.data.TestData;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.response.ValidatableResponse;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -32,13 +33,16 @@ public class CRUDPlayerControllerTest {
 
 
     @Test
-    public void createNewPlayerTest(){
-        PlayerDto player=new PlayerDto.Builder().fullName("TestName").position("TestPosition").build();
+    public void createNewPlayerTest() {
+        PlayerDto player = new PlayerDto.Builder().fullName("TestName").position("TestPosition").build();
 
 
-        PlayerDto createdPlayer = playerController.createPlayer(player)
-                .statusCode(201)
-                .extract().body().as(PlayerDto.class);
+        ValidatableResponse response = playerController.createPlayer(player);
+
+        PlayerDto createdPlayer = playerController
+                .validateStatusCode(response, 201)
+                .extractObject(response, PlayerDto.class);
+
 
         Assert.assertTrue(!createdPlayer.getId().isEmpty());
         Assert.assertEquals(player.getFullName(), createdPlayer.getFullName());
@@ -46,14 +50,13 @@ public class CRUDPlayerControllerTest {
     }
 
     @Test
-    public void createNewPlayerWithIdTest(){
-        PlayerDto player=new PlayerDto.Builder().id("100").fullName("TestName").position("TestPosition").build();
+    public void createNewPlayerWithIdTest() {
+        PlayerDto player = new PlayerDto.Builder().id("100").fullName("TestName").position("TestPosition").build();
 
         playerController
                 .createPlayer(player)
                 .statusCode(400);
     }
-
 
 
     @Test
@@ -80,13 +83,13 @@ public class CRUDPlayerControllerTest {
     }
 
 
-
     @Test
     public void getFullNameThirdViaModelPlayerCheck() {
         String playerId = "3";
-        PlayerDto actualPlayer = playerController.getOnePlayer(playerId)
-                .statusCode(200)
-                .extract().body().as(PlayerDto.class);
+        ValidatableResponse response = playerController.getOnePlayer(playerId);
+        PlayerDto actualPlayer = playerController
+                .validateStatusCode(response, 200)
+                .extractObject(response, PlayerDto.class);
 
         Assert.assertEquals(actualPlayer, TestData.playerWithThirdId);
 
@@ -128,7 +131,7 @@ public class CRUDPlayerControllerTest {
     @Test
     public void getV1PlayerIdNotFound() {
 
-        String id="23";
+        String id = "23";
         String expectedErrorMessage = String.format(expectedResponseNotFoundPattern, id);
 
         ErrorMessage actualErrorMessage = playerController.getOnePlayer(id)
