@@ -1,5 +1,6 @@
 package com.example.rest_api.controller.player;
 
+import com.example.rest_api.controller.player.model.PlayerController;
 import com.example.rest_api.controller.player.model.PlayerDto;
 import com.example.rest_api.controller.shared.ErrorMessage;
 import com.example.rest_api.data.TestData;
@@ -11,6 +12,8 @@ import org.testng.annotations.Test;
 import static com.example.rest_api.config.Urls.PLAYERS_URL;
 
 public class CRUDPlayerControllerTest {
+
+    private PlayerController playerController = new PlayerController();
 
 
     @Test
@@ -33,13 +36,8 @@ public class CRUDPlayerControllerTest {
         PlayerDto player=new PlayerDto.Builder().fullName("TestName").position("TestPosition").build();
 
 
-        PlayerDto createdPlayer = RestAssured.given()
-                .log().all()
-                .contentType(ContentType.JSON)
-                .body(player)
-                .when()
-                .post(PLAYERS_URL)
-                .then().statusCode(201)
+        PlayerDto createdPlayer = playerController.createPlayer(player)
+                .statusCode(201)
                 .extract().body().as(PlayerDto.class);
 
         Assert.assertTrue(!createdPlayer.getId().isEmpty());
@@ -51,13 +49,9 @@ public class CRUDPlayerControllerTest {
     public void createNewPlayerWithIdTest(){
         PlayerDto player=new PlayerDto.Builder().id("100").fullName("TestName").position("TestPosition").build();
 
-        RestAssured.given()
-                .log().all()
-                .contentType(ContentType.JSON)
-                .body(player)
-                .when()
-                .post(PLAYERS_URL)
-                .then().statusCode(400);
+        playerController
+                .createPlayer(player)
+                .statusCode(400);
     }
 
 
@@ -67,7 +61,6 @@ public class CRUDPlayerControllerTest {
         RestAssured.given()
                 .log().all()
                 .contentType(ContentType.JSON)
-                .body("{}")
                 .when()
                 .post(PLAYERS_URL)
                 .then().statusCode(400);
@@ -90,13 +83,8 @@ public class CRUDPlayerControllerTest {
 
     @Test
     public void getFullNameThirdViaModelPlayerCheck() {
-
-
-        PlayerDto actualPlayer = RestAssured.given()
-                //.log().all()
-                .when()
-                .get(PLAYERS_URL + "/3")
-                .then()
+        String playerId = "3";
+        PlayerDto actualPlayer = playerController.getOnePlayer(playerId)
                 .statusCode(200)
                 .extract().body().as(PlayerDto.class);
 
@@ -113,24 +101,18 @@ public class CRUDPlayerControllerTest {
     public void getV1PlayerId() {
         //String id="10000";
         //+> id, +10
+        String playerId = "5";
 
         PlayerDto expectedPlayer = new PlayerDto.Builder()
-                .id("5")
+                .id(playerId)
                 .fullName("Laurent Koscielny")
                 .position("DF")
                 .teamName("Arsenal")
                 .build();
 
-        PlayerDto actualPlayer = RestAssured.given()
-                //.log().all()
-                .when()
-                .get(PLAYERS_URL + "/5")
-                .then()
+        PlayerDto actualPlayer = playerController.getOnePlayer(playerId)
                 .statusCode(200)
                 .extract().body().as(PlayerDto.class);
-        System.out.println("===============================================");
-        System.out.println("Actual result:");
-        System.out.println(actualPlayer.toString());
 
         Assert.assertEquals(actualPlayer, expectedPlayer);
 
@@ -149,11 +131,7 @@ public class CRUDPlayerControllerTest {
         String id="23";
         String expectedErrorMessage = String.format(expectedResponseNotFoundPattern, id);
 
-        ErrorMessage actualErrorMessage = RestAssured.given()
-                //.log().all()
-                .when()
-                .get(PLAYERS_URL + "/" + id)
-                .then()
+        ErrorMessage actualErrorMessage = playerController.getOnePlayer(id)
                 .statusCode(404)
                 .extract().body().as(ErrorMessage.class);
 
